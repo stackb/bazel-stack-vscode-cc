@@ -29,25 +29,25 @@ import subprocess
 import tempfile
 
 
-_BAZEL = os.getenv("BAZEL_COMPDB_BAZEL_PATH") or "bazel"
+# _BAZEL = os.getenv("BAZEL_COMPDB_BAZEL_PATH") or "bazel"
 
-def bazel_info():
-    """Returns a dict containing key values from bazel info."""
+# def bazel_info():
+#     """Returns a dict containing key values from bazel info."""
 
-    bazel_info_dict = dict()
-    try:
-        out = subprocess.check_output([_BAZEL, 'info', 'execution_root', 'workspace', 'bazel-bin']).decode('utf-8').strip().split('\n')
-    except subprocess.CalledProcessError as err:
-        # This exit code is returned when this command is run outside of a bazel workspace.
-        if err.returncode == 2:
-            sys.exit(0)
-        sys.exit(err.returncode)
+#     bazel_info_dict = dict()
+#     try:
+#         out = subprocess.check_output([_BAZEL, 'info', 'execution_root', 'workspace', 'bazel-bin']).decode('utf-8').strip().split('\n')
+#     except subprocess.CalledProcessError as err:
+#         # This exit code is returned when this command is run outside of a bazel workspace.
+#         if err.returncode == 2:
+#             sys.exit(0)
+#         sys.exit(err.returncode)
 
-    for line in out:
-        key_val = line.strip().partition(": ")
-        bazel_info_dict[key_val[0]] = key_val[2]
+#     for line in out:
+#         key_val = line.strip().partition(": ")
+#         bazel_info_dict[key_val[0]] = key_val[2]
 
-    return bazel_info_dict
+#     return bazel_info_dict
 
 if __name__ == "__main__":
     ##
@@ -63,19 +63,15 @@ if __name__ == "__main__":
     ##
     ## Setup Bazel Metadata
     ##
-    print("Gathering bazel info...")
-    bazel_info_dict = bazel_info()
-    bazel_exec_root = bazel_info_dict['execution_root']
-    bazel_workspace = bazel_info_dict['workspace']
+    # print("Gathering bazel info...")
+    # bazel_info_dict = bazel_info()
+    # bazel_exec_root = bazel_info_dict['execution_root']
+    # bazel_workspace = bazel_info_dict['workspace']
 
     # want 'bazel-out/darwin-fastbuild/bin'
-    bazel_bin = bazel_info_dict['bazel-bin']
-    if bazel_bin.startswith(bazel_exec_root):
-        bazel_bin = bazel_bin[len(bazel_exec_root)+1:]
-
-    compdb_file = os.path.join(bazel_workspace, "compile_commands.json")
-
-    os.chdir(bazel_workspace)
+    # bazel_bin = bazel_info_dict['bazel-bin']
+    # if bazel_bin.startswith(bazel_exec_root):
+    #     bazel_bin = bazel_bin[len(bazel_exec_root)+1:]
 
     ##
     ## Parse Build Events
@@ -107,7 +103,6 @@ if __name__ == "__main__":
     for line in bazel_stderr:
         if line.endswith('.compile_commands.json'):
             compile_command_json_db_files.append(line.strip())
-        print("STDERR", line)
 
     ##
     ## Collect/Fix/Merge Compilation Databases
@@ -121,9 +116,9 @@ if __name__ == "__main__":
     print("Fixing up commands...")
     def fix_db_entry(db_entry):
         if 'directory' in db_entry and db_entry['directory'] == '__EXEC_ROOT__':
-            db_entry['directory'] = bazel_workspace if args.source_dir else bazel_exec_root
-        if 'file' in db_entry and db_entry['file'].startswith(bazel_bin):
-            db_entry['file'] = db_entry['file'][len(bazel_bin)+1:]
+            db_entry['directory'] = bazel_workspace if args.source_dir else local_exec_root
+        # if 'file' in db_entry and db_entry['file'].startswith(bazel_bin):
+        #     db_entry['file'] = db_entry['file'][len(bazel_bin)+1:]
         if 'command' in db_entry:
             command = db_entry['command']
             if command:
@@ -132,6 +127,10 @@ if __name__ == "__main__":
                 db_entry['command'] = command
         return db_entry
     db_entries = list(map(fix_db_entry, db_entries))
+
+    compdb_file = os.path.join(workspace_directory, "compile_commands.json")
+
+    # os.chdir(bazel_workspace)
 
     with open(compdb_file, 'w') as outdb:
         json.dump(db_entries, outdb, indent=2)
@@ -148,6 +147,6 @@ if __name__ == "__main__":
         except FileNotFoundError:
             pass
         # This is for libclang to help find source files from external repositories.
-        os.symlink(os.path.join(bazel_exec_root, 'external'),
+        os.symlink(os.path.join(local_exec_root, 'external'),
                    link_name,
                    target_is_directory=True)

@@ -3,7 +3,7 @@
 	"name": "bazel-stack-vscode-cc",
 	"displayName": "bazel-stack-vscode-cc",
 	"description": "C/C++ Support For Bazel Stack VSCode Extension",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"icon": "stackb-cc.png",
 	"engines": {
 		"vscode": "^1.45.0"
@@ -26,13 +26,36 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:bsv.bzl.bep"
+		"onView:bsv.bzl.bep",
+		"onCommand:bsv.cc.compdb.generate"
 	],
 	"extensionDependencies": [
 		"stackbuild.bazel-stack-vscode"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Bazel/C++",
+			"properties": {
+				"bsv.cc.compdb.targets": {
+					"type": "array",
+					"description": "List of targets to index when creating the compile_commands.json file.",
+					"items": {
+						"type": "string"
+					},
+					"default": []
+				}
+			}
+		},
+		"commands": [
+			{
+				"category": "Bzl",
+				"command": "bsv.cc.compdb.generate",
+				"title": "Bazel/C++: Generate Compilation Database",
+				"icon": "$(gear)"
+			}
+		],
 		"problemMatchers": [
 			{
 				"name": "CppCompile",
@@ -61,13 +84,14 @@
 		"vscode-install": "vsce package --out ext.vsix && code --install-extension ext.vsix"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.45.0",
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.2",
 		"@types/node": "^13.11.0",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.30.0",
+		"@types/tmp": "^0.2.1",
+		"@types/vscode": "^1.45.0",
 		"@typescript-eslint/eslint-plugin": "^2.30.0",
+		"@typescript-eslint/parser": "^2.30.0",
+		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
 		"mocha": "^7.1.2",
 		"typescript": "^3.8.3",
@@ -75,6 +99,7 @@
 		"vscode-test": "^1.3.0"
 	},
 	"dependencies": {
-		"bazel-stack-vscode-api": "^1.2.2"
+		"bazel-stack-vscode-api": "^1.2.2",
+		"tmp": "^0.2.1"
 	}
 }

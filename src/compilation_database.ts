@@ -15,11 +15,14 @@ export class CompilationDatabase implements vscode.Disposable {
     async generate() {
         const bazel = "bazel";
         const cwd = Container.workspaceFolderFsPath || ".";
-        const targets = [
-            "//absl/time:time",
-        ];
+        const config = vscode.workspace.getConfiguration('bsv.cc.compdb');
+        const targets = config.get<string[] | undefined>('targets', undefined);
+        if (!targets || targets.length === 0) {
+            vscode.window.showErrorMessage('The list of bazel targets to index for the compilation database is not configured.  Please configure the "bsv.cc.compdb.targets" workspace setting to include a list of cc_library, cc_binary labels');
+            return;
+        }
 
-        vscode.window.showInformationMessage("Compilation database created!");
+        vscode.window.showInformationMessage('Building clang compilation database for ' + JSON.stringify(targets));
 
         const execution = await vscode.tasks.executeTask(new GenerateCompilationDatabaseCommand(
             "bazel-vscode-compdb",
@@ -30,7 +33,6 @@ export class CompilationDatabase implements vscode.Disposable {
             {},
             this.disposables,
         ).newTask());
-
     }
 
     dispose() {
@@ -73,8 +75,8 @@ class GenerateCompilationDatabaseCommand {
             "--override_repository=bazel_vscode_compdb=" + this.repositoryPath.fsPath,
             "--aspects=@bazel_vscode_compdb//:aspects.bzl%compilation_database_aspect",
             "--color=no",
-            "--show_progress",
-            "--show_loading_progress",
+            "--noshow_progress",
+            "--noshow_loading_progress",
             "--output_groups=compdb_files,header_files",
             "--build_event_json_file=" + this.buildEventsJsonTempFile,
             ...this.targets,
