@@ -25,7 +25,7 @@ export class CompilationDatabase implements vscode.Disposable {
         vscode.window.showInformationMessage('Building clang compilation database for ' + JSON.stringify(targets));
 
         const execution = await vscode.tasks.executeTask(new GenerateCompilationDatabaseCommand(
-            "bazel-vscode-compdb",
+            "bazel-compdb",
             bazel,
             Container.file("compdb/"),
             targets,
@@ -99,10 +99,6 @@ class GenerateCompilationDatabaseCommand {
             env: this.env,
             cwd: this.cwd,
         });
-        // const execution = new vscode.ProcessExecution(this.bazel, this.makeCommand(), {
-        //     env: this.env,
-        //     cwd: this.cwd,
-        // });
         const task = new vscode.Task(taskDefinition, scope, this.name, source, execution);
         task.presentationOptions = {
             clear: true,

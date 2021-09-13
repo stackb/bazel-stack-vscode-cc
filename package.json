@@ -26,7 +26,6 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:bsv.bzl.bep",
 		"onCommand:bsv.cc.compdb.generate"
 	],
 	"extensionDependencies": [
