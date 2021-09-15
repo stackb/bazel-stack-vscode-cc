@@ -31,5 +31,5 @@ suite('Problem Matchers', () => {
 	cases.forEach((tc) => {
 		test(tc.d || tc.name, async () => runner.test(tc));
 	});
-	
+
 });
