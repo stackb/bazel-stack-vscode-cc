@@ -1,6 +1,6 @@
 import { registerProblemMatchers } from 'bazel-stack-vscode-api';
 import * as vscode from 'vscode';
-import { CompilationDatabase } from './compilation_database';
+import { CompilationDatabase } from './compilationDatabase';
 import { Container } from './container';
 
 export function activate(context: vscode.ExtensionContext) {
