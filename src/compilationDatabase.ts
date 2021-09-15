@@ -23,12 +23,15 @@ export class CompilationDatabase implements vscode.Disposable {
         }
 
         const bazelConfig = vscode.workspace.getConfiguration('bsv.bazel');
-        const bazelExecutable = bazelConfig.get<string>('executable', 'bazel');
-        const bazelBuildArgs = bazelConfig.get<string[]>('buildArgs', []);
+        let bazelExecutable = bazelConfig.get<string | undefined>('executable');
+        if (!bazelExecutable) {
+            bazelExecutable = 'bazel';
+        }
+        const buildFlags = bazelConfig.get<string[]>('buildFlags', []);
 
         vscode.window.showInformationMessage('Building clang compilation database for ' + JSON.stringify(targets));
 
-        return vscode.tasks.executeTask(this.createGenerateTask(targets, bazelExecutable, bazelBuildArgs));
+        return vscode.tasks.executeTask(this.createGenerateTask(targets, bazelExecutable, buildFlags));
     }
 
     createGenerateTask(targets: string[], bazelExecutable: string, buildArgs: string[]): vscode.Task {

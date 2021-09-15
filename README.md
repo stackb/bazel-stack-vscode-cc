@@ -17,12 +17,19 @@ configure a list of bazel labels for the `cc_binary` or `cc_library` targets
 you'd like to be indexed.  The tool will then produce a command set for the
 transitive closure of those top-level targets.
 
-This can be added to your `.vscode/settings.json` and checked-in to VCS as
+To configure the bazel executable and/or additional bazel build arguments, use
+the `bsv.bazel.executable` and `bsv.bazel.buildFlags` settings (provided by
+[bazel-stack-vscode](https://marketplace.visualstudio.com/items?itemName=StackBuild.bazel-stack-vscode)).
+
+These can be added to your `.vscode/settings.json` and checked-in to VCS as
 follows:
 
 ```json
 {
     ...
+    "bsv.bazel.buildFlags": [
+        "--config=custom",
+    ],
     "bsv.cc.compdb.targets": [
         "//app/foo:foo_binary",
         "//app/bar:bar_binary",
