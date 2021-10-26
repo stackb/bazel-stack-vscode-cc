@@ -47,24 +47,20 @@ if __name__ == "__main__":
 
     local_exec_root = '__EXEC_ROOT__'
     workspace_directory = '__WORKSPACE__'
-    bazel_stderr = []
+    compile_command_json_db_files = set()
     with open(args.build_events_json_file, 'r') as f:
         for line in f:
             event = json.loads(line)
             if 'started' in event:
                 workspace_directory = event['started']['workspaceDirectory']
                 print("Workspace Directory:", workspace_directory)
-            elif 'progress' in event:
-                if 'stderr' in event['progress']:                  
-                    bazel_stderr.extend(event['progress']['stderr'].splitlines())
             elif 'workspaceInfo' in event:
                 local_exec_root = event['workspaceInfo']['localExecRoot']
                 print('Execution Root:', local_exec_root)
-
-    compile_command_json_db_files = []
-    for line in bazel_stderr:
-        if line.endswith('.compile_commands.json'):
-            compile_command_json_db_files.append(line.strip())
+            elif 'namedSetOfFiles' in event and 'files' in event['namedSetOfFiles']:
+                for file in event['namedSetOfFiles']['files']:
+                    if 'uri' in file and file['uri'].endswith('.compile_commands.json'):
+                        compile_command_json_db_files.add(file['uri'][7:])
 
     ##
     ## Collect/Fix/Merge Compilation Databases
