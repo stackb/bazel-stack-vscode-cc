@@ -3,7 +3,7 @@
 	"name": "bazel-stack-vscode-cc",
 	"displayName": "bazel-stack-vscode-cc",
 	"description": "C/C++ Support For Bazel Stack VSCode Extension",
-	"version": "1.1.2",
+	"version": "1.2.0",
 	"icon": "stackb-cc.png",
 	"engines": {
 		"vscode": "^1.45.0"
