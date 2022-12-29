@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print("Preparing compilation database...")
 
     db_entries = []
-    for db in compile_command_json_db_files:
+    for db in set(compile_command_json_db_files):
             with open(db, 'r') as f:
                 db_entries.extend(json.load(f))
 
